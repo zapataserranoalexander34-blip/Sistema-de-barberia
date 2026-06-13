@@ -1,4 +1,6 @@
-#importar las librerias
+#crear el archivo
+%%writefile app.py
+#importar las libreiras
 import streamlit as st
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -48,28 +50,74 @@ accion = st.sidebar.radio(
 # ==================================================
 if accion == "Agregar":
 
-    st.write("Agregar registro a opccion:", opcion)
+    st.write("Agregar registro a:", opcion)
 
     nombre = st.text_input("Nombre")
-    edad = st.number_input("Edad", 0, 100, 18)
+    apellido = st.text_input("Apellido")
+    edad = st.number_input("Edad", 0, 100, 20)
     telefono = st.text_input("Teléfono")
 
-    if opcion in ["Barberos", "Estilistas"]:
-        especialidad = st.text_input("Especialidad")
-    else:
-        especialidad = ""
+    if opcion == "Hombres":
+
+        tipo_corte = st.selectbox(
+            "Tipo de corte",
+            ["Moicano", "Cónico", "Alto desvanecimiento"]
+        )
+
+        precio = st.number_input("Precio", 0, 1000, 200)
+
+        barbero = st.selectbox(
+            "Barbero",
+            ["Carlos", "Pedro", "Luis"]
+        )
+
+        estilista = ""
+
+    elif opcion == "Mujeres":
+
+        tipo_corte = st.text_input("Servicio")
+
+        precio = st.number_input("Precio", 0, 5000, 200)
+
+        estilista = st.selectbox(
+            "Estilista",
+            ["Ana", "Laura", "Guillermina"]
+        )
+
+        barbero = ""
+
+    else:  # Niños
+
+        tipo_corte = st.selectbox(
+            "Tipo de corte",
+            ["Moicano", "Cónico", "Alto desvanecimiento"]
+        )
+
+        precio = st.number_input("Precio", 0, 1000, 150)
+
+        barbero = st.selectbox(
+            "Barbero",
+            ["Carlos", "Pedro", "Luis"]
+        )
+
+        estilista = ""
 
     if st.button("Guardar"):
 
         documento = {
             "nombre": nombre,
+            "apellido": apellido,
             "edad": edad,
             "telefono": telefono,
-            "fecha_registro": datetime.now()
+            "tipo_corte": tipo_corte,
+            "precio": precio
         }
 
-        if especialidad:
-            documento["especialidad"] = especialidad
+        if barbero:
+            documento["barbero"] = barbero
+
+        if estilista:
+            documento["estilista"] = estilista
 
         resultado = coleccion.insert_one(documento)
 
@@ -124,6 +172,11 @@ elif accion == "Actualizar":
             documento.get("nombre", "")
         )
 
+        apellido = st.text_input(
+            "Apellido",
+            documento.get("apellido", "")
+        )
+
         edad = st.number_input(
             "Edad",
             0,
@@ -136,24 +189,70 @@ elif accion == "Actualizar":
             documento.get("telefono", "")
         )
 
-        if opcion in ["Barberos", "Estilistas"]:
-            especialidad = st.text_input(
-                "Especialidad",
-                documento.get("especialidad", "")
+        tipo_corte = st.text_input(
+            "Tipo de corte",
+            documento.get("tipo_corte", "")
+        )
+
+        precio = st.number_input(
+            "Precio",
+            0,
+            5000,
+            int(documento.get("precio", 0))
+        )
+
+        if opcion == "Hombres":
+
+            barbero = st.selectbox(
+                "Barbero",
+                ["Carlos", "Pedro", "Luis"],
+                index=["Carlos", "Pedro", "Luis"].index(
+                    documento.get("barbero", "Carlos")
+                )
             )
+
+            estilista = ""
+
+        elif opcion == "Mujeres":
+
+            estilista = st.selectbox(
+                "Estilista",
+                ["Ana", "Laura", "Guillermina"],
+                index=["Ana", "Laura", "Guillermina"].index(
+                    documento.get("estilista", "Ana")
+                )
+            )
+
+            barbero = ""
+
         else:
-            especialidad = ""
+
+            barbero = st.selectbox(
+                "Barbero",
+                ["Carlos", "Pedro", "Luis"],
+                index=["Carlos", "Pedro", "Luis"].index(
+                    documento.get("barbero", "Carlos")
+                )
+            )
+
+            estilista = ""
 
         if st.button("Actualizar"):
 
             nuevos_datos = {
                 "nombre": nombre,
+                "apellido": apellido,
                 "edad": edad,
-                "telefono": telefono
+                "telefono": telefono,
+                "tipo_corte": tipo_corte,
+                "precio": precio
             }
 
-            if especialidad:
-                nuevos_datos["especialidad"] = especialidad
+            if barbero:
+                nuevos_datos["barbero"] = barbero
+
+            if estilista:
+                nuevos_datos["estilista"] = estilista
 
             coleccion.update_one(
                 {"_id": ObjectId(id_seleccionado)},
