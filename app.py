@@ -1,5 +1,3 @@
-#crear el archivo
-%%writefile app.py
 #importar las libreiras
 import streamlit as st
 from pymongo import MongoClient
